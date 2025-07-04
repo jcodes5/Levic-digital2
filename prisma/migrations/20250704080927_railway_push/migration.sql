@@ -55,44 +55,50 @@ CREATE TABLE `VerificationToken` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Post` (
+CREATE TABLE `posts` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
-    `excerpt` TEXT NOT NULL,
-    `content` LONGTEXT NOT NULL,
+    `excerpt` VARCHAR(191) NOT NULL,
+    `content` VARCHAR(191) NOT NULL,
     `image` VARCHAR(191) NULL,
     `category` VARCHAR(191) NOT NULL,
-    `tags` TEXT NOT NULL,
+    `tags` VARCHAR(191) NOT NULL,
     `status` ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT',
     `readTime` VARCHAR(191) NOT NULL,
-    `authorId` VARCHAR(191) NOT NULL,
     `publishedAt` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `authorId` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Post_slug_key`(`slug`),
-    INDEX `Post_status_idx`(`status`),
-    INDEX `Post_category_idx`(`category`),
-    INDEX `Post_publishedAt_idx`(`publishedAt`),
+    UNIQUE INDEX `posts_slug_key`(`slug`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Contact` (
+CREATE TABLE `contacts` (
     `id` VARCHAR(191) NOT NULL,
-    `firstName` VARCHAR(191) NOT NULL,
-    `lastName` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `phone` VARCHAR(191) NULL,
     `subject` VARCHAR(191) NOT NULL,
-    `message` TEXT NOT NULL,
-    `status` ENUM('UNREAD', 'READ', 'REPLIED', 'ARCHIVED') NOT NULL DEFAULT 'UNREAD',
+    `message` VARCHAR(191) NOT NULL,
+    `status` ENUM('NEW', 'READ', 'REPLIED', 'ARCHIVED') NOT NULL DEFAULT 'NEW',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    INDEX `Contact_status_idx`(`status`),
-    INDEX `Contact_createdAt_idx`(`createdAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `settings` (
+    `id` VARCHAR(191) NOT NULL,
+    `key` VARCHAR(191) NOT NULL,
+    `value` VARCHAR(191) NOT NULL,
+    `category` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `settings_key_key`(`key`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -103,4 +109,4 @@ ALTER TABLE `Account` ADD CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`
 ALTER TABLE `Session` ADD CONSTRAINT `Session_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Post` ADD CONSTRAINT `Post_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `posts` ADD CONSTRAINT `posts_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
