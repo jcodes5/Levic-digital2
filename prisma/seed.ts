@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { PostStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -47,7 +48,7 @@ async function main() {
       `,
       category: 'Digital Marketing',
       tags: JSON.stringify(['Marketing', 'Trends', 'AI', 'SEO']),
-      status: 'PUBLISHED',
+      status: PostStatus.PUBLISHED,
       readTime: '5 min read',
       authorId: admin.id,
       publishedAt: new Date(),
@@ -77,7 +78,7 @@ async function main() {
       `,
       category: 'Web Design',
       tags: JSON.stringify(['Design', 'UX', 'UI', 'Best Practices']),
-      status: 'PUBLISHED',
+      status: PostStatus.PUBLISHED,
       readTime: '7 min read',
       authorId: admin.id,
       publishedAt: new Date(),

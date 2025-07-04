@@ -65,7 +65,7 @@ model Post {
   title       String
   slug        String   @unique
   excerpt     String
-  content     String
+  content     String   @db.Text
   image       String?
   category    String
   tags        String   // JSON string
