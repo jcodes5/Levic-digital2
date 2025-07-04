@@ -93,7 +93,7 @@ async function main() {
     })
   }
 
-  console.log('Sample posts created')
+  console.log('Sample posts created.')
 }
 
 main()
