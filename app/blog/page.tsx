@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import { BlogPostCard } from "@/components/blog/blog-post-card"
 import { SearchBar } from "@/components/search-bar"
@@ -29,90 +29,66 @@ const staggerContainer = {
   },
 }
 
-const blogPosts = [
-  {
-    id: "digital-marketing-trends-2024",
-    title: "Top Digital Marketing Trends to Watch in 2024",
-    excerpt:
-      "Discover the latest digital marketing trends that will shape the industry in 2024, from AI-powered campaigns to voice search optimization.",
-    content: "Full blog content here...",
-    author: "Sarah Johnson",
-    date: "Dec 15, 2024",
-    category: "Digital Marketing",
-    tags: ["Marketing", "Trends", "AI", "SEO"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "5 min read",
-  },
-  {
-    id: "web-design-best-practices",
-    title: "Modern Web Design Best Practices for 2024",
-    excerpt:
-      "Learn about the essential web design principles that create engaging user experiences and drive conversions.",
-    content: "Full blog content here...",
-    author: "Mike Johnson",
-    date: "Dec 12, 2024",
-    category: "Web Design",
-    tags: ["Design", "UX", "UI", "Best Practices"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "7 min read",
-  },
-  {
-    id: "client-success-techstart",
-    title: "Client Success Story: TechStart Inc. 300% Growth",
-    excerpt:
-      "How we helped TechStart Inc. achieve 300% growth through comprehensive digital marketing and web development.",
-    content: "Full blog content here...",
-    author: "John Doe",
-    date: "Dec 10, 2024",
-    category: "Case Study",
-    tags: ["Success Story", "Growth", "Client", "Results"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "6 min read",
-  },
-  {
-    id: "cybersecurity-essentials",
-    title: "Cybersecurity Essentials for Small Businesses",
-    excerpt: "Protect your business with these essential cybersecurity measures every small business should implement.",
-    content: "Full blog content here...",
-    author: "David Brown",
-    date: "Dec 8, 2024",
-    category: "Cybersecurity",
-    tags: ["Security", "Business", "Protection", "Tips"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "8 min read",
-  },
-  {
-    id: "branding-guide-2024",
-    title: "Complete Guide to Brand Identity Design",
-    excerpt:
-      "Everything you need to know about creating a memorable brand identity that resonates with your target audience.",
-    content: "Full blog content here...",
-    author: "Jane Smith",
-    date: "Dec 5, 2024",
-    category: "Branding",
-    tags: ["Branding", "Identity", "Design", "Guide"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "10 min read",
-  },
-  {
-    id: "mobile-first-design",
-    title: "Why Mobile-First Design is Crucial in 2024",
-    excerpt: "Understanding the importance of mobile-first design approach and how it impacts user experience and SEO.",
-    content: "Full blog content here...",
-    author: "Lisa Davis",
-    date: "Dec 3, 2024",
-    category: "Web Design",
-    tags: ["Mobile", "Design", "UX", "SEO"],
-    image: "/placeholder.svg?height=200&width=400",
-    readTime: "6 min read",
-  },
-]
+interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  author: string
+  date: string
+  category: string
+  tags: string[]
+  image: string
+  readTime: string
+}
 
-const categories = ["All", "Digital Marketing", "Web Design", "Branding", "Cybersecurity", "Case Study"]
+const defaultCategories = ["All", "Digital Marketing", "Web Design", "Branding", "Cybersecurity", "Case Study"]
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [categories, setCategories] = useState(defaultCategories)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchBlogPosts()
+  }, [searchQuery, selectedCategory])
+
+  const fetchBlogPosts = async () => {
+    try {
+      setLoading(true)
+      const params = new URLSearchParams()
+      if (searchQuery) params.append("search", searchQuery)
+      if (selectedCategory !== "All") params.append("category", selectedCategory)
+
+      const response = await fetch(`/api/blog?${params}`)
+      // const data = await response.json()
+      const data: { posts: BlogPost[] } = await response.json()
+      
+      if (response.ok) {
+        setBlogPosts(data.posts.map((post: any) => ({
+          ...post,
+          date: new Date(post.publishedAt || post.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          })
+        })))
+        
+        // Update categories based on available posts
+        const uniqueCategories = Array.from(
+  new Set(data.posts.map((post: BlogPost) => post.category))
+)
+setCategories(["All", ...uniqueCategories])
+      }
+    } catch (error) {
+      console.error("Failed to fetch blog posts:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredPosts = useMemo(() => {
     return blogPosts.filter((post) => {
@@ -125,7 +101,7 @@ export default function BlogPage() {
 
       return matchesSearch && matchesCategory
     })
-  }, [searchQuery, selectedCategory])
+  }, [blogPosts, searchQuery, selectedCategory])
 
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white">
@@ -375,7 +351,11 @@ export default function BlogPage() {
       {/* Blog Posts Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          {filteredPosts.length > 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+            </div>
+          ) : filteredPosts.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post, index) => (
                 <BlogPostCard key={post.id} post={post} index={index} />

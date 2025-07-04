@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useSession } from 'next-auth/react'
@@ -5,42 +6,56 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Save,
-  Settings as SettingsIcon,
-  Globe,
-  Mail,
-  Phone,
-  MapPin,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Eye,
-  EyeOff
+  Save, 
+  Settings as SettingsIcon, 
+  Globe, 
+  Share2, 
+  Search, 
+  Phone, 
+  User,
+  Lock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AdminLayout } from '@/components/admin/admin-layout'
 import { useToast } from '@/hooks/use-toast'
 
-interface Settings {
-  siteName: string
-  siteDescription: string
-  contactEmail: string
-  contactPhone: string
-  address: string
-  socialMedia: {
+interface SettingsData {
+  general: {
+    siteName: string
+    siteDescription: string
+    siteUrl: string
+    logoUrl: string
+    faviconUrl: string
+  }
+  social: {
     facebook: string
     twitter: string
     instagram: string
     linkedin: string
+    youtube: string
   }
   seo: {
     metaTitle: string
     metaDescription: string
-    keywords: string
+    metaKeywords: string
+    googleAnalyticsId: string
+    googleSearchConsoleId: string
+  }
+  contact: {
+    email: string
+    phone: string
+    address: string
+    businessHours: string
+    emergencyContact: string
+  }
+  account: {
+    twoFactorEnabled: boolean
+    emailNotifications: boolean
+    maintenanceMode: boolean
   }
 }
 
@@ -50,28 +65,40 @@ export default function AdminSettings() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  })
-  const [settings, setSettings] = useState<Settings>({
-    siteName: 'Levic Digital Agency',
-    siteDescription: 'Full-service creative and tech-driven agency helping businesses scale, transform, and stand out in the digital space.',
-    contactEmail: 'info.levicdigital@gmail.com',
-    contactPhone: '+2348074947146',
-    address: 'Suite D9 HCR Plaza, Opp. Police Pension Office, Sylvester U. Ugoh Crescent, Jabi, Abuja',
-    socialMedia: {
+  const [activeTab, setActiveTab] = useState('general')
+  const [settings, setSettings] = useState<SettingsData>({
+    general: {
+      siteName: '',
+      siteDescription: '',
+      siteUrl: '',
+      logoUrl: '',
+      faviconUrl: ''
+    },
+    social: {
       facebook: '',
       twitter: '',
       instagram: '',
-      linkedin: ''
+      linkedin: '',
+      youtube: ''
     },
     seo: {
-      metaTitle: 'Levic Digital Agency - Innovating Growth. Building Brands.',
-      metaDescription: 'Full-service creative and tech-driven agency helping businesses scale, transform, and stand out in the digital space.',
-      keywords: 'digital marketing, web design, branding, UI/UX design, cybersecurity, architecture'
+      metaTitle: '',
+      metaDescription: '',
+      metaKeywords: '',
+      googleAnalyticsId: '',
+      googleSearchConsoleId: ''
+    },
+    contact: {
+      email: '',
+      phone: '',
+      address: '',
+      businessHours: '',
+      emergencyContact: ''
+    },
+    account: {
+      twoFactorEnabled: false,
+      emailNotifications: true,
+      maintenanceMode: false
     }
   })
 
@@ -83,24 +110,64 @@ export default function AdminSettings() {
       return
     }
 
-    // In a real app, you would fetch settings from the database
-    setLoading(false)
+    fetchSettings()
   }, [session, status, router])
 
-  const handleSaveSettings = async () => {
-    setSaving(true)
+  const fetchSettings = async () => {
     try {
-      // In a real app, you would save to the database
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+      const response = await fetch('/api/admin/settings')
+      const data = await response.json()
       
-      toast({
-        title: 'Success',
-        description: 'Settings saved successfully',
-      })
+      if (response.ok) {
+        setSettings(prevSettings => ({
+          general: { ...prevSettings.general, ...data.general },
+          social: { ...prevSettings.social, ...data.social },
+          seo: { ...prevSettings.seo, ...data.seo },
+          contact: { ...prevSettings.contact, ...data.contact },
+          account: { ...prevSettings.account, ...data.account }
+        }))
+      }
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to save settings',
+        description: 'Failed to fetch settings',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSave = async (category: keyof SettingsData) => {
+    setSaving(true)
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          settings: settings[category]
+        }),
+      })
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: `${category.charAt(0).toUpperCase() + category.slice(1)} settings updated successfully`,
+        })
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to update settings',
+          variant: 'destructive',
+        })
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update settings',
         variant: 'destructive',
       })
     } finally {
@@ -108,52 +175,14 @@ export default function AdminSettings() {
     }
   }
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: 'Error',
-        description: 'New passwords do not match',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    try {
-      const response = await fetch('/api/admin/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword,
-        }),
-      })
-
-      if (response.ok) {
-        toast({
-          title: 'Success',
-          description: 'Password changed successfully',
-        })
-        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-        setShowPasswordForm(false)
-      } else {
-        const data = await response.json()
-        toast({
-          title: 'Error',
-          description: data.error || 'Failed to change password',
-          variant: 'destructive',
-        })
+  const updateSetting = (category: keyof SettingsData, key: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [key]: value
       }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to change password',
-        variant: 'destructive',
-      })
-    }
+    }))
   }
 
   if (status === 'loading' || loading) {
@@ -169,314 +198,407 @@ export default function AdminSettings() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-            <p className="text-gray-600 dark:text-gray-300">Manage site settings and configuration</p>
-          </div>
-          <Button 
-            onClick={handleSaveSettings}
-            disabled={saving}
-            className="bg-yellow-500 text-white hover:bg-yellow-600"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? 'Saving...' : 'Save Settings'}
-          </Button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage your website settings</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-white/60 dark:bg-white/5 backdrop-blur-xl">
+            <TabsTrigger value="general" className="flex items-center gap-2">
+              <SettingsIcon className="h-4 w-4" />
+              General
+            </TabsTrigger>
+            <TabsTrigger value="social" className="flex items-center gap-2">
+              <Share2 className="h-4 w-4" />
+              Social
+            </TabsTrigger>
+            <TabsTrigger value="seo" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              SEO
+            </TabsTrigger>
+            <TabsTrigger value="contact" className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              Contact
+            </TabsTrigger>
+            <TabsTrigger value="account" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Account
+            </TabsTrigger>
+          </TabsList>
+
           {/* General Settings */}
-          <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
-            <CardHeader>
-              <CardTitle className="text-yellow-500 dark:text-yellow-400">General Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Site Name
-                </label>
-                <Input
-                  value={settings.siteName}
-                  onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                  className="bg-white/50 dark:bg-white/10"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Site Description
-                </label>
-                <Textarea
-                  value={settings.siteDescription}
-                  onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
-                  className="bg-white/50 dark:bg-white/10"
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <TabsContent value="general">
+            <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-500 dark:text-yellow-400">General Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Site Name</label>
+                    <Input
+                      value={settings.general.siteName}
+                      onChange={(e) => updateSetting('general', 'siteName', e.target.value)}
+                      placeholder="Your Site Name"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Site URL</label>
+                    <Input
+                      value={settings.general.siteUrl}
+                      onChange={(e) => updateSetting('general', 'siteUrl', e.target.value)}
+                      placeholder="https://example.com"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                </div>
 
-          {/* Contact Information */}
-          <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
-            <CardHeader>
-              <CardTitle className="text-yellow-500 dark:text-yellow-400">Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Mail className="inline h-4 w-4 mr-1" />
-                  Contact Email
-                </label>
-                <Input
-                  type="email"
-                  value={settings.contactEmail}
-                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                  className="bg-white/50 dark:bg-white/10"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Phone className="inline h-4 w-4 mr-1" />
-                  Contact Phone
-                </label>
-                <Input
-                  value={settings.contactPhone}
-                  onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })}
-                  className="bg-white/50 dark:bg-white/10"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <MapPin className="inline h-4 w-4 mr-1" />
-                  Address
-                </label>
-                <Textarea
-                  value={settings.address}
-                  onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                  className="bg-white/50 dark:bg-white/10"
-                  rows={2}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Social Media */}
-          <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
-            <CardHeader>
-              <CardTitle className="text-yellow-500 dark:text-yellow-400">Social Media</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Facebook className="inline h-4 w-4 mr-1" />
-                  Facebook URL
-                </label>
-                <Input
-                  value={settings.socialMedia.facebook}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    socialMedia: { ...settings.socialMedia, facebook: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                  placeholder="https://facebook.com/yourpage"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Twitter className="inline h-4 w-4 mr-1" />
-                  Twitter URL
-                </label>
-                <Input
-                  value={settings.socialMedia.twitter}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    socialMedia: { ...settings.socialMedia, twitter: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                  placeholder="https://twitter.com/yourhandle"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Instagram className="inline h-4 w-4 mr-1" />
-                  Instagram URL
-                </label>
-                <Input
-                  value={settings.socialMedia.instagram}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    socialMedia: { ...settings.socialMedia, instagram: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                  placeholder="https://instagram.com/yourhandle"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  <Linkedin className="inline h-4 w-4 mr-1" />
-                  LinkedIn URL
-                </label>
-                <Input
-                  value={settings.socialMedia.linkedin}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    socialMedia: { ...settings.socialMedia, linkedin: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                  placeholder="https://linkedin.com/company/yourcompany"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* SEO Settings */}
-          <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
-            <CardHeader>
-              <CardTitle className="text-yellow-500 dark:text-yellow-400">SEO Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Meta Title
-                </label>
-                <Input
-                  value={settings.seo.metaTitle}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    seo: { ...settings.seo, metaTitle: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Meta Description
-                </label>
-                <Textarea
-                  value={settings.seo.metaDescription}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    seo: { ...settings.seo, metaDescription: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Keywords (comma separated)
-                </label>
-                <Input
-                  value={settings.seo.keywords}
-                  onChange={(e) => setSettings({ 
-                    ...settings, 
-                    seo: { ...settings.seo, keywords: e.target.value }
-                  })}
-                  className="bg-white/50 dark:bg-white/10"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Account Settings */}
-        <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
-          <CardHeader>
-            <CardTitle className="text-yellow-500 dark:text-yellow-400">Account Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Change Password</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Update your account password</p>
-              </div>
-              <Button
-                onClick={() => setShowPasswordForm(!showPasswordForm)}
-                variant="outline"
-                className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10"
-              >
-                {showPasswordForm ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                {showPasswordForm ? 'Hide' : 'Change Password'}
-              </Button>
-            </div>
-
-            {showPasswordForm && (
-              <motion.form
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                onSubmit={handlePasswordChange}
-                className="mt-6 space-y-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Current Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Site Description</label>
+                  <Textarea
+                    value={settings.general.siteDescription}
+                    onChange={(e) => updateSetting('general', 'siteDescription', e.target.value)}
+                    placeholder="Brief description of your website"
                     className="bg-white/50 dark:bg-white/10"
-                    required
+                    rows={3}
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    New Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    className="bg-white/50 dark:bg-white/10"
-                    required
-                  />
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Logo URL</label>
+                    <Input
+                      value={settings.general.logoUrl}
+                      onChange={(e) => updateSetting('general', 'logoUrl', e.target.value)}
+                      placeholder="https://example.com/logo.png"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Favicon URL</label>
+                    <Input
+                      value={settings.general.faviconUrl}
+                      onChange={(e) => updateSetting('general', 'faviconUrl', e.target.value)}
+                      placeholder="https://example.com/favicon.ico"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Confirm New Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    className="bg-white/50 dark:bg-white/10"
-                    required
-                  />
-                </div>
-                
-                <div className="flex gap-3">
+
+                <div className="flex justify-end">
                   <Button
-                    type="submit"
+                    onClick={() => handleSave('general')}
+                    disabled={saving}
                     className="bg-yellow-500 text-white hover:bg-yellow-600"
                   >
-                    Update Password
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setShowPasswordForm(false)
-                      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-                    }}
-                  >
-                    Cancel
+                    {saving ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save General Settings
                   </Button>
                 </div>
-              </motion.form>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Media Settings */}
+          <TabsContent value="social">
+            <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-500 dark:text-yellow-400">Social Media Links</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Facebook</label>
+                    <Input
+                      value={settings.social.facebook}
+                      onChange={(e) => updateSetting('social', 'facebook', e.target.value)}
+                      placeholder="https://facebook.com/yourpage"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Twitter/X</label>
+                    <Input
+                      value={settings.social.twitter}
+                      onChange={(e) => updateSetting('social', 'twitter', e.target.value)}
+                      placeholder="https://twitter.com/yourhandle"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Instagram</label>
+                    <Input
+                      value={settings.social.instagram}
+                      onChange={(e) => updateSetting('social', 'instagram', e.target.value)}
+                      placeholder="https://instagram.com/yourhandle"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">LinkedIn</label>
+                    <Input
+                      value={settings.social.linkedin}
+                      onChange={(e) => updateSetting('social', 'linkedin', e.target.value)}
+                      placeholder="https://linkedin.com/company/yourcompany"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">YouTube</label>
+                    <Input
+                      value={settings.social.youtube}
+                      onChange={(e) => updateSetting('social', 'youtube', e.target.value)}
+                      placeholder="https://youtube.com/c/yourchannel"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleSave('social')}
+                    disabled={saving}
+                    className="bg-yellow-500 text-white hover:bg-yellow-600"
+                  >
+                    {saving ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Social Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SEO Settings */}
+          <TabsContent value="seo">
+            <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-500 dark:text-yellow-400">SEO Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Meta Title</label>
+                  <Input
+                    value={settings.seo.metaTitle}
+                    onChange={(e) => updateSetting('seo', 'metaTitle', e.target.value)}
+                    placeholder="Default page title"
+                    className="bg-white/50 dark:bg-white/10"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Meta Description</label>
+                  <Textarea
+                    value={settings.seo.metaDescription}
+                    onChange={(e) => updateSetting('seo', 'metaDescription', e.target.value)}
+                    placeholder="Default page description"
+                    className="bg-white/50 dark:bg-white/10"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Meta Keywords</label>
+                  <Input
+                    value={settings.seo.metaKeywords}
+                    onChange={(e) => updateSetting('seo', 'metaKeywords', e.target.value)}
+                    placeholder="keyword1, keyword2, keyword3"
+                    className="bg-white/50 dark:bg-white/10"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Google Analytics ID</label>
+                    <Input
+                      value={settings.seo.googleAnalyticsId}
+                      onChange={(e) => updateSetting('seo', 'googleAnalyticsId', e.target.value)}
+                      placeholder="GA-XXXXXXXXX-X"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Google Search Console ID</label>
+                    <Input
+                      value={settings.seo.googleSearchConsoleId}
+                      onChange={(e) => updateSetting('seo', 'googleSearchConsoleId', e.target.value)}
+                      placeholder="google-site-verification=..."
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleSave('seo')}
+                    disabled={saving}
+                    className="bg-yellow-500 text-white hover:bg-yellow-600"
+                  >
+                    {saving ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save SEO Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contact Settings */}
+          <TabsContent value="contact">
+            <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-500 dark:text-yellow-400">Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Email</label>
+                    <Input
+                      value={settings.contact.email}
+                      onChange={(e) => updateSetting('contact', 'email', e.target.value)}
+                      placeholder="contact@example.com"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Phone</label>
+                    <Input
+                      value={settings.contact.phone}
+                      onChange={(e) => updateSetting('contact', 'phone', e.target.value)}
+                      placeholder="+1 (555) 123-4567"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Address</label>
+                  <Textarea
+                    value={settings.contact.address}
+                    onChange={(e) => updateSetting('contact', 'address', e.target.value)}
+                    placeholder="123 Main St, City, State 12345"
+                    className="bg-white/50 dark:bg-white/10"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Business Hours</label>
+                    <Input
+                      value={settings.contact.businessHours}
+                      onChange={(e) => updateSetting('contact', 'businessHours', e.target.value)}
+                      placeholder="Mon-Fri 9AM-5PM"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Emergency Contact</label>
+                    <Input
+                      value={settings.contact.emergencyContact}
+                      onChange={(e) => updateSetting('contact', 'emergencyContact', e.target.value)}
+                      placeholder="+1 (555) 987-6543"
+                      className="bg-white/50 dark:bg-white/10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleSave('contact')}
+                    disabled={saving}
+                    className="bg-yellow-500 text-white hover:bg-yellow-600"
+                  >
+                    {saving ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Contact Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Account Settings */}
+          <TabsContent value="account">
+            <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-500 dark:text-yellow-400">Account Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-white/30 dark:bg-white/5 rounded-lg">
+                    <div>
+                      <h4 className="font-medium">Two-Factor Authentication</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Add an extra layer of security</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.account.twoFactorEnabled}
+                      onChange={(e) => updateSetting('account', 'twoFactorEnabled', e.target.checked)}
+                      className="w-4 h-4 text-yellow-500 rounded"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white/30 dark:bg-white/5 rounded-lg">
+                    <div>
+                      <h4 className="font-medium">Email Notifications</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Receive email updates</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.account.emailNotifications}
+                      onChange={(e) => updateSetting('account', 'emailNotifications', e.target.checked)}
+                      className="w-4 h-4 text-yellow-500 rounded"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white/30 dark:bg-white/5 rounded-lg">
+                    <div>
+                      <h4 className="font-medium">Maintenance Mode</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Put site in maintenance mode</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={settings.account.maintenanceMode}
+                      onChange={(e) => updateSetting('account', 'maintenanceMode', e.target.checked)}
+                      className="w-4 h-4 text-yellow-500 rounded"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => handleSave('account')}
+                    disabled={saving}
+                    className="bg-yellow-500 text-white hover:bg-yellow-600"
+                  >
+                    {saving ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Account Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   )

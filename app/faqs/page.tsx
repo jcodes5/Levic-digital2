@@ -367,12 +367,13 @@ export default function FAQsPage() {
                   </Button>
                 </Link>
                 <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/20 hover:text-yellow-600 dark:border-yellow-400/50 dark:text-yellow-400 bg-white/30 dark:bg-black/30 backdrop-blur-sm"
-                >
-                  Schedule a Call
-                </Button>
+                      size="lg" 
+                      onClick={() => window.open('https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2FER4kZW_w8w1w8w2w8w3w8w4w8w5w6w7w8w9w?gv=true', '_blank')}
+                      variant="outline"
+                      className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/20 hover:text-yellow-600 dark:border-yellow-400/50 dark:text-yellow-400 bg-white/30 dark:bg-black/30 backdrop-blur-sm"
+                    >
+                      Schedule a Call
+                    </Button>
               </div>
             </div>
           </motion.div>

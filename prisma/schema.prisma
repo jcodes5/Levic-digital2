@@ -61,47 +61,23 @@ model VerificationToken {
 }
 
 model Post {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
-  slug        String      @unique
-  excerpt     String      @db.Text
-  content     String      @db.LongText
+  slug        String   @unique
+  excerpt     String
+  content     String
   image       String?
   category    String
-  tags        String      @db.Text // JSON string of tags array
-  status      PostStatus  @default(DRAFT)
+  tags        String   // JSON string
+  status      PostStatus @default(DRAFT)
   readTime    String
-  authorId    String
-  author      User        @relation(fields: [authorId], references: [id])
   publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
 
-  @@index([status])
-  @@index([category])
-  @@index([publishedAt])
-}
-
-model Contact {
-  id        String      @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String
-  phone     String?
-  subject   String
-  message   String      @db.Text
-  status    ContactStatus @default(UNREAD)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  @@index([status])
-  @@index([createdAt])
-}
-
-enum Role {
-  USER
-  ADMIN
-  EDITOR
+  @@map("posts")
 }
 
 enum PostStatus {
@@ -110,9 +86,39 @@ enum PostStatus {
   ARCHIVED
 }
 
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactStatus @default(NEW)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}
+
 enum ContactStatus {
-  UNREAD
+  NEW
   READ
   REPLIED
   ARCHIVED
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON string for complex values
+  category  String   // "general", "social", "seo", "contact", "account"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+enum Role {
+  USER
+  ADMIN
+  EDITOR
 }

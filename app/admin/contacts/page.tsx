@@ -67,7 +67,7 @@ export default function AdminContacts() {
 
       const response = await fetch(`/api/admin/contacts?${params}`)
       const data = await response.json()
-      
+
       if (response.ok) {
         setContacts(data.contacts)
       } else {
@@ -334,7 +334,7 @@ export default function AdminContacts() {
                     ×
                   </Button>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Name</label>
@@ -342,36 +342,36 @@ export default function AdminContacts() {
                       {selectedContact.firstName} {selectedContact.lastName}
                     </p>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Email</label>
                     <p className="text-gray-900 dark:text-white">{selectedContact.email}</p>
                   </div>
-                  
+
                   {selectedContact.phone && (
                     <div>
                       <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Phone</label>
                       <p className="text-gray-900 dark:text-white">{selectedContact.phone}</p>
                     </div>
                   )}
-                  
+
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Subject</label>
                     <p className="text-gray-900 dark:text-white">{selectedContact.subject}</p>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Message</label>
                     <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{selectedContact.message}</p>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Status</label>
                     <Badge className={getStatusColor(selectedContact.status)}>
                       {selectedContact.status}
                     </Badge>
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-300">Received</label>
                     <p className="text-gray-900 dark:text-white">

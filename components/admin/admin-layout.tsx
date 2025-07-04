@@ -15,9 +15,11 @@ import {
   X,
   Plus,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Search
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme-toggle'
 import Link from 'next/link'
 
@@ -36,6 +38,7 @@ const navigation = [
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const router = useRouter()
   const pathname = usePathname()
@@ -67,9 +70,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       } ${sidebarCollapsed ? 'w-16' : 'w-64'}`}>
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className={`flex h-16 items-center justify-between px-6 border-b border-yellow-500/20 ${sidebarCollapsed ? 'px-4' : ''}`}>
-            <Link href="/admin/dashboard">
-              <h1 className={`text-2xl font-bold text-yellow-500 dark:text-yellow-400 transition-all duration-300 ${sidebarCollapsed ? 'text-lg' : ''}`}>
+          <div className={`flex h-16 items-center justify-between border-b border-yellow-500/20 ${sidebarCollapsed ? 'px-2' : 'px-6'}`}>
+            <Link href="/admin/dashboard" className="flex items-center justify-center">
+              <h1 className={`font-bold text-yellow-500 dark:text-yellow-400 transition-all duration-300 ${sidebarCollapsed ? 'text-lg' : 'text-2xl'}`}>
                 {sidebarCollapsed ? 'L' : 'LEVIC'}
               </h1>
             </Link>
@@ -90,7 +93,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className={`flex-1 py-6 space-y-2 ${sidebarCollapsed ? 'px-2' : 'px-4'}`}>
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               return (
@@ -98,15 +101,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${
+                    className={`flex items-center text-sm font-medium rounded-lg transition-colors group ${
                       isActive
                         ? 'bg-yellow-500/10 text-yellow-500 dark:text-yellow-400'
                         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    } ${sidebarCollapsed ? 'justify-center px-2' : ''}`}
+                    } ${sidebarCollapsed ? 'justify-center p-3' : 'px-4 py-3'}`}
                     title={sidebarCollapsed ? item.name : undefined}
                   >
-                    <item.icon className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-3'}`} />
-                    {!sidebarCollapsed && <span>{item.name}</span>}
+                    <item.icon className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-3'} flex-shrink-0`} />
+                    {!sidebarCollapsed && <span className="truncate">{item.name}</span>}
                   </motion.div>
                 </Link>
               )
@@ -114,7 +117,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </nav>
 
           {/* User info */}
-          <div className={`border-t border-yellow-500/20 p-4 ${sidebarCollapsed ? 'px-2' : ''}`}>
+          <div className={`border-t border-yellow-500/20 ${sidebarCollapsed ? 'p-2' : 'p-4'}`}>
             {!sidebarCollapsed && (
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
@@ -132,11 +135,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
               </div>
             )}
+            {sidebarCollapsed && (
+              <div className="flex justify-center mb-4">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">
+                    {session?.user?.name?.[0] || session?.user?.email?.[0] || 'A'}
+                  </span>
+                </div>
+              </div>
+            )}
             <Button
               onClick={handleSignOut}
               variant="outline"
               size={sidebarCollapsed ? "icon" : "sm"}
-              className={`border-red-500/50 text-red-500 hover:bg-red-500/10 ${sidebarCollapsed ? 'w-full' : 'w-full'}`}
+              className={`border-red-500/50 text-red-500 hover:bg-red-500/10 w-full`}
               title={sidebarCollapsed ? 'Sign Out' : undefined}
             >
               <LogOut className={`h-4 w-4 ${sidebarCollapsed ? '' : 'mr-2'}`} />
@@ -151,12 +163,26 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Top bar */}
         <div className="sticky top-0 z-30 bg-white/60 dark:bg-black/60 backdrop-blur-xl border-b border-yellow-500/20">
           <div className="flex h-16 items-center justify-between px-6">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+              
+              {/* Search Box */}
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-64 bg-white/50 dark:bg-white/10 border-yellow-500/20 focus:border-yellow-500"
+                />
+              </div>
+            </div>
 
             <div className="flex items-center space-x-4">
               {pathname === '/admin/posts' && (

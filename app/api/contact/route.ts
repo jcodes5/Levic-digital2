@@ -1,37 +1,56 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { z } from "zod"
 
-const contactSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  subject: z.string().min(1, "Subject is required"),
-  message: z.string().min(1, "Message is required"),
-})
 
+// Define expected payload type
+interface ContactFormData {
+  name: string
+  email: string
+  subject: string
+  message: string
+}
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const validatedData = contactSchema.parse(body)
-
-    const contact = await prisma.contact.create({
-      data: validatedData
-    })
-
-    return NextResponse.json({ success: true, contact }, { status: 201 })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+     const data = await request.json()
+    const { name, email, subject, message } = data as ContactFormData
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "All fields are required" },
         { status: 400 }
       )
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      )
+    }
+
+    // Save to database
+    const contact = await prisma.contact.create({
+      data: {
+        name,
+        email,
+        subject,
+        message,
+        status: "NEW" // Default status
+      }
+    })
+
+    console.log("Contact form submission saved:", contact)
+
+    return NextResponse.json(
+      { message: "Thank you for your message. We'll get back to you soon!" },
+      { status: 200 }
+    )
+  } catch (error) {
     console.error("Contact form error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     )
   }
