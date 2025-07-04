@@ -7,10 +7,18 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Protect admin routes
-        if (req.nextUrl.pathname.startsWith("/admin")) {
+        const { pathname } = req.nextUrl
+        
+        // Allow access to login page without authentication
+        if (pathname === "/admin/login") {
+          return true
+        }
+        
+        // Protect other admin routes
+        if (pathname.startsWith("/admin")) {
           return token?.role === "ADMIN" || token?.role === "EDITOR"
         }
+        
         return true
       },
     },

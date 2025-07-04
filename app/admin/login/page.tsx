@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
@@ -18,6 +18,31 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const { data: session, status } = useSession()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.role && (session.user.role === 'ADMIN' || session.user.role === 'EDITOR')) {
+      router.push('/admin/dashboard')
+    }
+  }, [session, status, router])
+
+  // Show loading spinner while checking session
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50/30 to-white/30 dark:from-gray-900/30 dark:to-black/30 p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+          <p className="text-gray-600 dark:text-gray-300">Checking authentication...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render the form if already authenticated
+  if (status === 'authenticated') {
+    return null // Will redirect via useEffect
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,9 +61,14 @@ export default function AdminLogin() {
           description: 'Invalid email or password',
           variant: 'destructive',
         })
-      } else {
+      } else if (result?.ok) {
+        // Get the session to check user role
         const session = await getSession()
         if (session?.user?.role === 'ADMIN' || session?.user?.role === 'EDITOR') {
+          toast({
+            title: 'Login Successful',
+            description: 'Welcome back!',
+          })
           router.push('/admin/dashboard')
         } else {
           toast({
