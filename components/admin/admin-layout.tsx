@@ -4,19 +4,20 @@ import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import {
-  LayoutDashboard,
-  FileText,
+import { 
+  LayoutDashboard, 
+  FileText, 
   Mail,
-  Users,
-  Settings,
-  LogOut,
+  Users, 
+  Settings, 
+  LogOut, 
   Menu,
   X,
   Plus,
   ChevronLeft,
   ChevronRight,
-  Search
+  Search,
+  Briefcase
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ const navigation = [
   { name: 'Messages', href: '/admin/contacts', icon: Mail },
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Portfolio', href: '/admin/portfolio', icon: Briefcase },
 ]
 
 export function AdminLayout({ children }: AdminLayoutProps) {
@@ -170,9 +172,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Menu className="h-6 w-6" />
               </button>
-              
+
               {/* Search Box */}
-              <div className="relative hidden md:block">
+              {/* <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
@@ -181,7 +183,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 w-64 bg-white/50 dark:bg-white/10 border-yellow-500/20 focus:border-yellow-500"
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="flex items-center space-x-4">
@@ -193,7 +195,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   </Button>
                 </Link>
               )}
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
             </div>
           </div>
         </div>

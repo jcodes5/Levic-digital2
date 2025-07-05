@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ExternalLink, Calendar, Tag, Eye } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -37,8 +37,29 @@ export default function PortfolioPage() {
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeFilter, setActiveFilter] = useState("All")
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const projects = [
+  useEffect(() => {
+    fetchPortfolio()
+  }, [])
+
+  const fetchPortfolio = async () => {
+    try {
+      const response = await fetch('/api/portfolio')
+      if (response.ok) {
+        const data = await response.json()
+        setProjects(data)
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Static projects for fallback (keeping some for demo)
+  const staticProjects = [
     {
       title: "E-commerce Platform for Fashion Brand",
       category: "Web Development",
@@ -291,15 +312,11 @@ export default function PortfolioPage() {
     },
   ]
 
-  const categories = [
-    "All",
-    "Web Development",
-    "Branding",
-    "UI/UX Design",
-    "Digital Marketing",
-    "Cybersecurity",
-    "Architecture",
-  ]
+ // Combine database projects with static projects for fallback
+  const allProjects = projects.length > 0 ? projects : staticProjects
+
+  // Get categories from projects
+  const categories = ["All", ...new Set(allProjects.map(project => project.category))]
 
   const openProject = (project: any) => {
     setSelectedProject(project)
@@ -307,7 +324,16 @@ export default function PortfolioPage() {
   }
 
   const filteredProjects =
-    activeFilter === "All" ? projects : projects.filter((project) => project.category === activeFilter)
+        activeFilter === "All" ? allProjects : allProjects.filter((project) => project.category === activeFilter)
+
+
+  if (loading) {
+    return (
+      <div className="bg-white dark:bg-black text-black dark:text-white min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white">
@@ -590,12 +616,12 @@ export default function PortfolioPage() {
                       <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">{project.description}</p>
 
                       <div className="flex flex-wrap gap-2">
-                        {project.tags.map((tag, i) => (
-                          <div key={i} className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {tag}
-                          </div>
-                        ))}
+                        {project.tags && project.tags.map((tag: string, i: number) => (
+  <div key={i} className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+    <Tag className="h-3 w-3 mr-1" />
+    {tag}
+  </div>
+))}
                       </div>
                     </div>
                   </CardContent>

@@ -48,6 +48,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
+  portfolio     Portfolio[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -115,6 +116,39 @@ model Settings {
   updatedAt DateTime @updatedAt
 
   @@map("settings")
+}
+
+model Portfolio {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  fullDescription String @db.Text
+  image       String?
+  category    String
+  tags        String   // JSON string
+  client      String?
+  duration    String?
+  date        String
+  link        String?
+  challenges  String?  // JSON string
+  solutions   String?  // JSON string
+  results     String?  // JSON string
+  gallery     String?  // JSON string for image URLs
+  status      PortfolioStatus @default(PUBLISHED)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String
+
+  @@map("portfolio")
+}
+
+enum PortfolioStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 enum Role {
