@@ -5,6 +5,8 @@ import type React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
+import logo from "@/public/logo.png"
 
 interface UniversalPreloaderProps {
   children: React.ReactNode
@@ -72,9 +74,13 @@ export function UniversalPreloader({ children }: UniversalPreloaderProps) {
                 transition={{ duration: 0.5 }}
                 className="mb-8"
               >
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent mb-2">
-                  LEVIC
-                </h1>
+                 <Image
+                                  src={logo}
+                                  alt="Logo"
+                                  width={80}
+                                  height={80}
+                                  className="inline-block mr-2"
+                                />
                 <p className="text-gray-600 dark:text-gray-300 text-sm">Loading {getPageTitle(pathname)}...</p>
               </motion.div>
 

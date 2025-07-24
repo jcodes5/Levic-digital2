@@ -7,6 +7,8 @@ import { Sun, Moon, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import Image from 'next/image'
+import logo from '@/public/logo.png'
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -44,7 +46,7 @@ export function Header() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-yellow-500/20 shadow-lg shadow-black/5"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="container mx-auto px-4  sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link href="/">
             <motion.div
@@ -53,7 +55,13 @@ export function Header() {
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="text-2xl font-bold text-yellow-500 dark:text-yellow-400"
             >
-              LEVIC
+              <Image
+                src={logo}
+                alt="Logo"
+                width={100}
+                height={80}
+                className="inline-block mr-2"
+              />
             </motion.div>
           </Link>
 

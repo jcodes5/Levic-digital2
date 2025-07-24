@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
+import Image from "next/image"
+import logo from "@/public/logo.png"
 
 export function Preloader() {
   const [isLoading, setIsLoading] = useState(true)
@@ -30,9 +32,15 @@ export function Preloader() {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                LEVIC
-              </h1>
+              {/* <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent"> */}
+                <Image
+                  src={logo}
+                  alt="Logo"
+                  width={60}
+                  height={60}
+                  className="inline-block mr-2"
+                />
+              {/* </h1> */}
               <p className="text-gray-600 dark:text-gray-300 mt-2">Innovating Growth. Building Brands.</p>
             </motion.div>
 

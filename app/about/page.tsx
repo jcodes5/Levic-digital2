@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { FloatingElement } from "@/components/enhanced-glassmorphism"
 import Image from "next/image"
 import About from "@/public/about.jpg"
+import CEO from "@/public/CEO.png"
 
 const fadeInLeft = {
   initial: { opacity: 0, x: -60 },
@@ -32,7 +33,7 @@ export default function AboutPage() {
     {
       name: "John Doe",
       role: "CEO & Founder",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/CEO.png",
       bio: "Visionary leader with 10+ years in digital marketing and business strategy.",
       social: {
         twitter: "https://twitter.com/johndoe",

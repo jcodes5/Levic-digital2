@@ -8,7 +8,7 @@ import Link from "next/link"
 import { OptimizedImage } from "@/components/optimized-image"
 
 interface BlogPost {
-  id: string
+  slug: string
   title: string
   excerpt: string
   content: string
@@ -34,7 +34,7 @@ export function BlogPostCard({ post, index }: BlogPostCardProps) {
       transition={{ delay: index * 0.1, duration: 0.8 }}
       whileHover={{ scale: 1.02, y: -5 }}
     >
-      <Link href={`/blog/${post.id}`}>
+      <Link href={`/blog/${post.slug}`}>
         <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border-yellow-500/30 overflow-hidden group hover:border-yellow-500/50 transition-all duration-300 shadow-lg hover:shadow-2xl h-full cursor-pointer">
           <CardContent className="p-0">
             <div className="relative overflow-hidden">
