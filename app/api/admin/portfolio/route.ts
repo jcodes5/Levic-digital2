@@ -1,18 +1,17 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'EDITOR')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const portfolio = await prisma.portfolio.findMany({
+    const portfolios = await prisma.portfolio.findMany({
       include: {
         author: {
           select: {
@@ -24,23 +23,31 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [
         { order: 'asc' },
-        { createdAt: 'desc' }
+        { createdAt: 'desc' },
       ],
     })
 
-    return NextResponse.json(portfolio)
+    return NextResponse.json(portfolios)
   } catch (error) {
-    console.error('Error fetching portfolio:', error)
+    console.error('Error fetching portfolios:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
-
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'EDITOR')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Safely look up the user from DB using session email
+    const dbUser = await prisma.user.findUnique({
+      where: { email: session.user.email! }
+    })
+
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found in database' }, { status: 404 })
     }
 
     const body = await request.json()
@@ -64,12 +71,9 @@ export async function POST(request: NextRequest) {
       order
     } = body
 
-    // Check if slug already exists
-    const existingProject = await prisma.portfolio.findUnique({
-      where: { slug }
-    })
-
-    if (existingProject) {
+    // Check for duplicate slug
+    const existing = await prisma.portfolio.findUnique({ where: { slug } })
+    if (existing) {
       return NextResponse.json({ error: 'Slug already exists' }, { status: 400 })
     }
 
@@ -92,7 +96,7 @@ export async function POST(request: NextRequest) {
         gallery: JSON.stringify(gallery || []),
         status: status || 'PUBLISHED',
         order: order || 0,
-        authorId: session.user.id,
+        authorId: dbUser.id, // ✅ This is now always valid
       },
       include: {
         author: {

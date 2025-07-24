@@ -51,18 +51,21 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-      }
-      return token
-    },
+  if (user) {
+    token.id = user.id // ✅ Set the user ID manually
+    token.role = user.role
+  }
+  return token
+},
+
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role
-      }
-      return session
-    },
+  if (token && session.user) {
+    session.user.id = token.id as string // ✅ Use token.id, not token.sub
+    session.user.role = token.role as string
+  }
+  return session
+},
+
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`

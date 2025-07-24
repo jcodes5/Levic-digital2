@@ -15,6 +15,7 @@ interface ProjectModalProps {
     fullDescription: string
     image: string
     tags: string[]
+    link: string
     date: string
     client: string
     duration: string
@@ -161,10 +162,21 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
               )}
 
               <div className="flex gap-4">
-                <Button className="bg-yellow-500 text-white hover:bg-yellow-600 dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-500 shadow-lg shadow-yellow-500/25">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Live Project
-                </Button>
+               <a
+  href={
+    project.link.startsWith("http")
+      ? project.link
+      : `https://${project.link}`
+  }
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <Button className="bg-yellow-500 text-white hover:bg-yellow-600 dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-500 shadow-lg shadow-yellow-500/25">
+    <ExternalLink className="h-4 w-4 mr-2" />
+    View Live Project
+  </Button>
+</a>
+
                 <Link href="/contact">
                   <Button
                     variant="outline"
