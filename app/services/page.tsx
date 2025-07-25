@@ -294,7 +294,7 @@ export default function ServicesPage() {
                   <Image
                     src={Services}
                     alt="Our Services"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover mt-8"
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
