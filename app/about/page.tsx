@@ -31,9 +31,9 @@ const staggerContainer = {
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: "John Doe",
+      name: "Promise Levi",
       role: "CEO & Founder",
-      image: "/CEO.png",
+      image: "/CEO.png?width=100&height=100",
       bio: "Visionary leader with 10+ years in digital marketing and business strategy.",
       social: {
         twitter: "https://twitter.com/johndoe",
@@ -42,9 +42,9 @@ export default function AboutPage() {
       },
     },
     {
-      name: "Jane Smith",
+      name: "Babatunde Oluwatobi",
       role: "Creative Director",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/creative.jpg?width=100&height=100",
       bio: "Award-winning designer specializing in brand identity and visual storytelling.",
       social: {
         twitter: "https://twitter.com/janesmith",
@@ -53,10 +53,10 @@ export default function AboutPage() {
       },
     },
     {
-      name: "Mike Johnson",
-      role: "Lead Developer",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Full-stack developer with expertise in modern web technologies and architecture.",
+      name: "Overcomer Jatto",
+      role: "Lead Software Developer",
+      image: "/me.png",
+      bio: "A Software developer with expertise in modern web technologies and architecture.",
       social: {
         twitter: "https://twitter.com/mikejohnson",
         linkedin: "https://linkedin.com/in/mikejohnson",
@@ -64,9 +64,9 @@ export default function AboutPage() {
       },
     },
     {
-      name: "Sarah Wilson",
+      name: "Rosemary Ojochenemi L.",
       role: "Digital Marketing Manager",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/digital.png",
       bio: "Data-driven marketer with proven track record in SEO, SEM, and social media.",
       social: {
         twitter: "https://twitter.com/sarahwilson",
@@ -75,10 +75,10 @@ export default function AboutPage() {
       },
     },
     {
-      name: "David Brown",
-      role: "UI/UX Designer",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "User experience expert focused on creating intuitive and engaging digital interfaces.",
+      name: "Victoria Samuel",
+      role: "Executive Secretary",
+      image: "/secetary.png",
+      bio: "Experienced Executive Secretary ensuring smooth office operations, effective communication, and high-level administrative support to enhance organizational efficiency and client satisfaction.",
       social: {
         twitter: "https://twitter.com/davidbrown",
         linkedin: "https://linkedin.com/in/davidbrown",
@@ -86,10 +86,21 @@ export default function AboutPage() {
       },
     },
     {
-      name: "Lisa Davis",
-      role: "Project Manager",
-      image: "/placeholder.svg?height=300&width=300",
-      bio: "Experienced project manager ensuring seamless delivery and client satisfaction.",
+      name: "Anthony Chigbo",
+      role: "WordPress Expert",
+      image: "/wordpress.jpg",
+      bio: "Experienced WordPress expert ensuring seamless website development and client satisfaction through efficient execution, customization, and ongoing support.",
+      social: {
+        twitter: "https://twitter.com/lisadavis",
+        linkedin: "https://linkedin.com/in/lisadavis",
+        instagram: "https://instagram.com/lisadavis",
+      },
+    },
+    {
+      name: "Barnabas C. Ogbor",
+      role: "Fullstack Developer",
+      image: "/fullstack.png",
+      bio: "Experienced Fullstack Developer delivering robust, scalable web applications through expertise in both frontend and backend technologies, ensuring seamless user experiences and high-quality code.",
       social: {
         twitter: "https://twitter.com/lisadavis",
         linkedin: "https://linkedin.com/in/lisadavis",
@@ -423,21 +434,22 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
+                transition={{ delay: index * 0.1, duration: 0.8 }}
+                whileHover={{ scale: 1.05, y: -5 }}
               >
-                <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border-yellow-500/30 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
-                  <CardContent className="p-0 relative">
+                <Card className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border-yellow-500/30 overflow-hidden group hover:border-yellow-500/50 transition-all duration-300 shadow-lg hover:shadow-2xl h-full">
+                  <CardContent className="p-0">
                     <div className="relative overflow-hidden">
-                      <img
-                        src={member.image || "/placeholder.svg"}
-                        alt={member.name}
-                        className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-
+          <div className="w-full aspect-square bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+            <img
+              src={member.image || "/placeholder.svg"}
+              alt={member.name}
+              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                       {/* Social Media Overlay */}
-                      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                      <div className="team-card-overlay">
                         <div className="flex space-x-4">
                           <motion.a
                             href={member.social.twitter}
@@ -445,7 +457,7 @@ export default function AboutPage() {
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.2, y: -2 }}
                             whileTap={{ scale: 0.9 }}
-                            className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition-all duration-300"
+                            className="social-icon"
                           >
                             <Twitter className="h-5 w-5" />
                           </motion.a>
@@ -455,7 +467,7 @@ export default function AboutPage() {
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.2, y: -2 }}
                             whileTap={{ scale: 0.9 }}
-                            className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition-all duration-300"
+                            className="social-icon"
                           >
                             <Linkedin className="h-5 w-5" />
                           </motion.a>
@@ -465,7 +477,7 @@ export default function AboutPage() {
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.2, y: -2 }}
                             whileTap={{ scale: 0.9 }}
-                            className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition-all duration-300"
+                            className="social-icon"
                           >
                             <Instagram className="h-5 w-5" />
                           </motion.a>

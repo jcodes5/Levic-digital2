@@ -1,15 +1,14 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, CheckCircle, Users, Award, Target, Play } from "lucide-react"
+import { ArrowRight, CheckCircle, Users, Award, Target, Play, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import { Testimonials } from "@/components/testimonials"
 import { FloatingElement } from "@/components/enhanced-glassmorphism"
-import image from "next/image"  
-import  Hero  from "@/public/hero.png"
-import Image from "next/image"
+import Image from "next/image"  
+import Hero from "@/public/hero.png"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -37,20 +36,101 @@ const staggerContainer = {
   },
 }
 
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeInOut" } },
+  exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2, ease: "easeInOut" } },
+}
+
+interface Client {
+  name: string
+  logo: string
+  description: string
+}
+
+interface Stat {
+  number: string
+  label: string
+}
+
 export default function HomePage() {
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+
+  const clients: Client[] = [
+    { 
+      name: "Great Nations Luxury Homes Limited", 
+      logo: "/great nation.jpg",
+      description: "Premier luxury real estate developer, specializing in opulent residential properties with a commitment to quality and sophistication."
+    },
+    { 
+      name: "Visa House", 
+      logo: "/visa.jpg",
+      description: "Leading global travel and immigration consultancy, providing seamless visa solutions for individuals and businesses worldwide."
+    },
+    { 
+      name: "Rapha", 
+      logo: "/rapha.jpg",
+      description: "Renowned creative agency known for producing impactful and visually stunning marketing campaigns across various industries."
+    },
+    { 
+      name: "LevelUp Study Abroad", 
+      logo: "/levelup.jpg",
+      description: "Empowering students with the tools and guidance needed to succeed in international education and study abroad programs."
+    },
+    { 
+      name: "Brix School of Business", 
+      logo: "/bsb.jpg",
+      description: "A prestigious business school dedicated to providing cutting-edge financial education and leadership training."
+    },
+    { 
+      name: "Brix Group International", 
+      logo: "brinx.jpg",
+      description: "Global retail giant making waves in the fashion industry with an emphasis on trendsetting designs and quality craftsmanship."
+    },
+    { 
+      name: "3TS Worldwide", 
+      logo: "3ts.jpg",
+      description: "An international educational platform providing innovative learning resources and courses to empower students globally."
+    },
+]
+
+
+  const openModal = (client: Client) => setSelectedClient(client)
+  const closeModal = () => setSelectedClient(null)
+
+  // Move this array outside of JSX
+  const whoWeAreItems: {
+    icon: React.ElementType
+    title: string
+    desc: string
+  }[] = [
+    {
+      icon: Target,
+      title: "Our Vision",
+      desc: "To be the go-to digital partner for African and global brands seeking to grow, thrive, and lead in the digital era.",
+    },
+    {
+      icon: Award,
+      title: "Our Mission",
+      desc: "To deliver top-tier digital services that blend creativity, strategy, and innovation — empowering businesses to succeed with ease.",
+    },
+    {
+      icon: Users,
+      title: "Our Team",
+      desc: "Creative professionals, developers, strategists, and problem-solvers committed to excellence and innovation.",
+    },
+  ];
+
   return (
     <div className="bg-white dark:bg-black text-black dark:text-white overflow-x-hidden">
       {/* Hero Section */}
       <section className="min-h-screen flex items-center relative overflow-hidden bg-gradient-to-br from-yellow-50/30 to-white/30 dark:from-gray-900/30 dark:to-black/30">
-        {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 to-transparent backdrop-blur-3xl"></div>
         <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-xl"></div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh]">
-            {/* Left Content */}
             <motion.div variants={staggerContainer} initial="initial" animate="animate" className="text-left space-y-8">
-              {/* Badge */}
               <motion.div
                 variants={fadeInLeft}
                 className="inline-flex items-center px-4 py-2 mt-9 bg-yellow-500/10 dark:bg-yellow-400/10 backdrop-blur-sm rounded-full border border-yellow-500/20"
@@ -60,7 +140,6 @@ export default function HomePage() {
                 </span>
               </motion.div>
 
-              {/* Main Heading */}
               <motion.h1
                 variants={fadeInLeft}
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
@@ -91,7 +170,6 @@ export default function HomePage() {
                 </motion.span>
               </motion.h1>
 
-              {/* Subtitle */}
               <motion.p
                 variants={fadeInLeft}
                 initial={{ opacity: 0 }}
@@ -106,7 +184,6 @@ export default function HomePage() {
                 space.
               </motion.p>
 
-              {/* Stats */}
               <motion.div
                 variants={fadeInLeft}
                 initial={{ opacity: 0, y: 30 }}
@@ -114,11 +191,11 @@ export default function HomePage() {
                 transition={{ delay: 1.1, duration: 0.8 }}
                 className="flex flex-wrap gap-6 sm:gap-8"
               >
-                {[
+                {([
                   { number: "4+", label: "Years Experience" },
                   { number: "100+", label: "Projects Completed" },
                   { number: "50+", label: "Happy Clients" },
-                ].map((stat, index) => (
+                ] as Stat[]).map((stat: Stat, index: number) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -134,7 +211,6 @@ export default function HomePage() {
                 ))}
               </motion.div>
 
-              {/* CTA Buttons */}
               <motion.div
                 variants={fadeInLeft}
                 initial={{ opacity: 0, y: 30 }}
@@ -167,7 +243,6 @@ export default function HomePage() {
                 </Link>
               </motion.div>
 
-              {/* Trust Indicators */}
               <motion.div
                 variants={fadeInLeft}
                 initial={{ opacity: 0, y: 30 }}
@@ -175,7 +250,7 @@ export default function HomePage() {
                 transition={{ delay: 1.7, duration: 0.8 }}
                 className="flex items-center gap-4 pt-4"
               >
-                <div className="flex -space-x-2">
+                {/* <div className="flex -space-x-2">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
                       key={i}
@@ -184,7 +259,7 @@ export default function HomePage() {
                       {String.fromCharCode(64 + i)}
                     </div>
                   ))}
-                </div>
+                </div> */}
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   <div className="font-semibold text-yellow-500 dark:text-yellow-400">Trusted by 50+ clients</div>
                   <div>across various industries</div>
@@ -192,7 +267,6 @@ export default function HomePage() {
               </motion.div>
             </motion.div>
 
-            {/* Right Image */}
             <motion.div
               variants={fadeInRight}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -200,12 +274,9 @@ export default function HomePage() {
               transition={{ delay: 0.5, duration: 1 }}
               className="relative lg:h-[600px] xl:h-[700px]"
             >
-              {/* Main Image Container */}
               <div className="relative h-full">
-                {/* Background Glassmorphism Card */}
                 <div className="absolute inset-4 bg-white/20 dark:bg-black/20 backdrop-blur-xl rounded-3xl border border-white/30 dark:border-white/10 shadow-2xl"></div>
 
-                {/* Hero Image */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -216,11 +287,8 @@ export default function HomePage() {
                     alt="Levic Digital Agency Team"
                     className="w-full h-full object-cover"
                   />
-
-                  {/* Overlay Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
 
-                  {/* Floating Achievement Cards */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -256,7 +324,6 @@ export default function HomePage() {
                   </motion.div>
                 </motion.div>
 
-                {/* Decorative Elements */}
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
@@ -272,7 +339,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Enhanced Floating Elements */}
         <FloatingElement
           size="sm"
           color="yellow"
@@ -307,7 +373,6 @@ export default function HomePage() {
         />
       </section>
 
-      {/* Quick About Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50/80 to-white/80 dark:from-gray-900/80 dark:to-black/80 backdrop-blur-xl">
         <div className="container mx-auto px-4">
           <motion.div
@@ -325,23 +390,7 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Target,
-                title: "Our Vision",
-                desc: "To be the go-to digital partner for African and global brands seeking to grow, thrive, and lead in the digital era.",
-              },
-              {
-                icon: Award,
-                title: "Our Mission",
-                desc: "To deliver top-tier digital services that blend creativity, strategy, and innovation — empowering businesses to succeed with ease.",
-              },
-              {
-                icon: Users,
-                title: "Our Team",
-                desc: "Creative professionals, developers, strategists, and problem-solvers committed to excellence and innovation.",
-              },
-            ].map((item, index) => (
+            {whoWeAreItems.map((item, index: number) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 50 }}
@@ -378,7 +427,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Services Preview */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
@@ -395,7 +443,7 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
+            {([
               {
                 title: "Digital Marketing",
                 services: ["Social Media Marketing", "SEO", "Paid Advertising", "Email Campaigns"],
@@ -411,7 +459,11 @@ export default function HomePage() {
                 services: ["Logo Design", "Brand Identity", "Marketing Materials", "Corporate Design"],
                 icon: "🎨",
               },
-            ].map((service, index) => (
+            ] as {
+              title: string
+              services: string[]
+              icon: string
+            }[]).map((service, index: number) => (
               <motion.div
                 key={service.title}
                 initial={{ opacity: 0, y: 50 }}
@@ -425,7 +477,7 @@ export default function HomePage() {
                     <div className="text-4xl mb-4">{service.icon}</div>
                     <h3 className="text-2xl font-bold mb-4 text-yellow-500 dark:text-yellow-400">{service.title}</h3>
                     <ul className="space-y-2">
-                      {service.services.map((item, i) => (
+                      {service.services.map((item: string, i: number) => (
                         <li key={i} className="flex items-center text-gray-600 dark:text-gray-300">
                           <CheckCircle className="h-4 w-4 text-yellow-500 dark:text-yellow-400 mr-2 flex-shrink-0" />
                           {item}
@@ -450,10 +502,90 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      {/* <Testimonials /> */}
+      {/* Happy Clients Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50/80 to-white/80 dark:from-gray-900/80 dark:to-black/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-yellow-500 dark:text-yellow-400">Our Happy Clients</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Proudly partnered with leading brands and companies across various industries
+            </p>
+          </motion.div>
 
-      {/* CTA Section */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {clients.map((client: Client, index: number) => (
+              <motion.div
+                key={client.name}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                whileHover={{ scale: 1.1, y: -5 }}
+                className="relative cursor-pointer"
+                onClick={() => openModal(client)}
+              >
+                <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-500 shadow-lg hover:shadow-xl">
+                  <CardContent className="p-4 flex items-center justify-center">
+                    <Image
+                      src={client.logo}
+                      alt={`${client.name} logo`}
+                      width={120}
+                      height={60}
+                      className="object-contain h-16 w-full filter grayscale hover:grayscale-0 transition-all duration-300"
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal for Client Preview */}
+        {selectedClient && (
+          <motion.div
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm"
+            onClick={closeModal}
+          >
+            <motion.div
+              className="bg-white/60 dark:bg-black/60 backdrop-blur-xl rounded-3xl border border-yellow-500/20 p-8 max-w-md w-full mx-4 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={closeModal}
+                  className="text-gray-600 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+              <div className="flex flex-col items-center text-center">
+                <Image
+                  src={selectedClient.logo}
+                  alt={`${selectedClient.name} logo`}
+                  width={200}
+                  height={100}
+                  className="object-contain h-24 w-full mb-4"
+                />
+                <h3 className="text-2xl font-bold text-yellow-500 dark:text-yellow-400 mb-2">{selectedClient.name}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{selectedClient.description}</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </section>
+
       <section className="py-20 bg-gradient-to-r from-yellow-50/30 to-white/30 dark:from-gray-900/30 dark:to-black/30 backdrop-blur-xl relative">
         <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-2xl"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
