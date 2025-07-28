@@ -2,6 +2,8 @@
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram, Facebook } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import Logo from "@/public/logo.png"
+import Image from "next/image"
 
 export function Footer() {
   const footerLinks = {
@@ -43,7 +45,13 @@ export function Footer() {
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="inline-block"
             >
-              <h3 className="text-3xl font-bold text-yellow-500 dark:text-yellow-400 mb-4">LEVIC</h3>
+              <Image
+                src={Logo}
+                alt="Logo"
+                width={100}
+                height={80}
+                className="inline-block mr-2"
+              />
             </motion.div>
             <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">Innovating Growth. Building Brands.</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
