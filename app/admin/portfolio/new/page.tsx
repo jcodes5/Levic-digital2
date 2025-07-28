@@ -44,6 +44,7 @@ export default function NewPortfolioItem() {
     solutions: [''],
     results: [''],
     gallery: [''],
+    technologies: [''],
     status: 'PUBLISHED' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
     order: 0
   })
@@ -391,7 +392,41 @@ const removeArrayField = (field: string, index: number) => {
               </CardContent>
             </Card>
 
-            {/* Dynamic Arrays */}
+        {/* Dynamic Arrays */}
+            {/* Technologies Used */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Technologies Used
+              </label>
+              {formData.technologies && formData.technologies.map((tech, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    value={tech}
+                    onChange={(e) => handleArrayFieldChange('technologies', index, e.target.value)}
+                    placeholder="e.g. React, Node.js"
+                    className="bg-white/50 dark:bg-white/10"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => removeArrayField('technologies', index)}
+                    variant="outline"
+                    size="sm"
+                    disabled={formData.technologies.length === 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                onClick={() => addArrayField('technologies')}
+                variant="outline"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Technology
+              </Button>
+            </div>
             <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
               <CardHeader>
                 <CardTitle className="text-yellow-500 dark:text-yellow-400">Project Details</CardTitle>

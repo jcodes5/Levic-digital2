@@ -71,6 +71,7 @@ export default function EditPortfolioItem({
     solutions: [''],
     results: [''],
     gallery: [''],
+    technologies: [''],
     status: 'PUBLISHED' as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED',
     order: 0
   })
@@ -98,6 +99,7 @@ export default function EditPortfolioItem({
           solutions: JSON.parse(data.solutions || '[]'),
           results: JSON.parse(data.results || '[]'),
           gallery: JSON.parse(data.gallery || '[]'),
+          technologies: JSON.parse(data.technologies || '[]'), // <-- add this line
         }
         setPortfolio(parsedData)
         setFormData({
@@ -116,6 +118,7 @@ export default function EditPortfolioItem({
           solutions: parsedData.solutions.length > 0 ? parsedData.solutions : [''],
           results: parsedData.results.length > 0 ? parsedData.results : [''],
           gallery: parsedData.gallery.length > 0 ? parsedData.gallery : [''],
+          technologies: parsedData.technologies && parsedData.technologies.length > 0 ? parsedData.technologies : [''], // <-- add this line
           status: parsedData.status,
           order: parsedData.order
         })
@@ -138,28 +141,37 @@ export default function EditPortfolioItem({
     }
   }
 
-  const handleArrayFieldChange = (field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery', index: number, value: string) => {
-  setFormData(prev => ({
-    ...prev,
-    [field]: prev[field].map((item: string, i: number) =>
-      i === index ? value : item
-    ),
-  }))
-}
+  const handleArrayFieldChange = (
+    field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery' | 'technologies',
+    index: number,
+    value: string
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].map((item: string, i: number) =>
+        i === index ? value : item
+      ),
+    }))
+  }
 
-  const addArrayField = (field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery') => {
-  setFormData(prev => ({
-    ...prev,
-    [field]: [...(prev[field] || []), '']
-  }))
-}
+  const addArrayField = (
+    field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery' | 'technologies'
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...(prev[field] || []), '']
+    }))
+  }
 
-  const removeArrayField = (field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery', index: number) => {
-  setFormData(prev => ({
-    ...prev,
-    [field]: (prev[field] || []).filter((_: string, i: number) => i !== index)
-  }))
-}
+  const removeArrayField = (
+    field: 'tags' | 'challenges' | 'solutions' | 'results' | 'gallery' | 'technologies',
+    index: number
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: (prev[field] || []).filter((_: string, i: number) => i !== index)
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -336,6 +348,40 @@ export default function EditPortfolioItem({
             </Card>
 
             {/* Dynamic Arrays */}
+            {/* Technologies Used */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Technologies Used
+              </label>
+              {formData.technologies && formData.technologies.map((tech, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <Input
+                    value={tech}
+                    onChange={(e) => handleArrayFieldChange('technologies', index, e.target.value)}
+                    placeholder="e.g. React, Node.js"
+                    className="bg-white/50 dark:bg-white/10"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => removeArrayField('technologies', index)}
+                    variant="outline"
+                    size="sm"
+                    disabled={formData.technologies.length === 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                onClick={() => addArrayField('technologies')}
+                variant="outline"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Technology
+              </Button>
+            </div>
             <Card className="bg-white/60 dark:bg-white/5 backdrop-blur-xl border-yellow-500/20">
               <CardHeader>
                 <CardTitle className="text-yellow-500 dark:text-yellow-400">Project Details</CardTitle>
