@@ -388,7 +388,7 @@ export default function FAQsPage() {
             {[
               { icon: "📧", title: "Email Us", info: "info.levicdigital@gmail.com" },
               { icon: "📞", title: "Call Us", info: "+2348074947146" },
-              { icon: "📍", title: "Visit Us", info: "Jabi, Abuja, Nigeria" },
+              { icon: "📍", title: "Visit Us", info: "Suite D9 HCR Plaza, Opp. Police Pension Office, Sylvester U. Ugoh Crescent, Jabi, Abuja" },
             ].map((contact, index) => (
               <motion.div
                 key={contact.title}

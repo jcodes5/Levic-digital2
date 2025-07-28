@@ -33,7 +33,7 @@ export default function AboutPage() {
     {
       name: "Promise Levi",
       role: "CEO & Founder",
-      image: "/CEO.png?width=100&height=100",
+      image: "/CEO.jpg?width=100&height=100",
       bio: "Visionary leader with 10+ years in digital marketing and business strategy.",
       social: {
         twitter: "https://twitter.com/johndoe",
