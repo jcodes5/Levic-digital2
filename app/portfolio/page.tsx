@@ -673,7 +673,7 @@ export default function PortfolioPage() {
       </section>
 
       {/* Happy Clients Section */}
-      <EnhancedHappyClients />
+      {/* <EnhancedHappyClients /> */}
 
       {/* CTA Section */}
       <section className="py-20">
