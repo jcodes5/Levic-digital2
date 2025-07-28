@@ -114,9 +114,9 @@ export default function FAQsPage() {
               {/* Badge */}
               <motion.div
                 variants={fadeInLeft}
-                className="inline-flex items-center px-4 py-2 bg-yellow-500/10 dark:bg-yellow-400/10 backdrop-blur-sm rounded-full border border-yellow-500/20"
+                className="inline-flex items-center mt-9 px-4 py-2 bg-yellow-500/10 dark:bg-yellow-400/10 backdrop-blur-sm rounded-full border border-yellow-500/20"
               >
-                <span className="text-yellow-500 dark:text-yellow-400 text-sm font-medium">
+                <span className="text-yellow-500  dark:text-yellow-400 text-sm font-medium">
                   ❓ Common Questions Answered
                 </span>
               </motion.div>

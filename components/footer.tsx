@@ -83,7 +83,7 @@ export function Footer() {
                 className="flex items-center space-x-3 text-gray-600 dark:text-gray-300"
               >
                 <MapPin className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
-                <span className="text-sm">Jabi, Abuja, Nigeria</span>
+                <span className="text-sm">Suite D9 HCR Plaza, Opp. Police Pension Office, Sylvester U. Ugoh Crescent, Jabi, Abuja</span>
               </motion.div>
             </div>
           </div>
